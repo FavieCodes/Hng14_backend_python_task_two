@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stage 2 - Profiles API Documentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff; --bg2: #f7f6f3; --border: rgba(0,0,0,0.12);
+      --text: #1a1a1a; --muted: #6b6b68; --hint: #9b9b98;
+      --mono: 'Courier New', monospace; --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --radius: 8px; --radius-lg: 12px;
+      --green-bg: #E1F5EE; --green-text: #0F6E56;
+      --blue-bg: #E6F1FB;  --blue-text: #185FA5;
+      --red-bg: #FCEBEB;   --red-text: #A32D2D;
+      --amber-bg: #FAEEDA; --amber-text: #854F0B;
+      --purple-bg: #F0E6FF; --purple-text: #6B3FA0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a; --bg2: #252523; --border: rgba(255,255,255,0.12);
+        --text: #e8e7e3; --muted: #a0a09d; --hint: #666663;
+        --green-bg: #085041; --green-text: #9FE1CB;
+        --blue-bg: #0C447C;  --blue-text: #B5D4F4;
+        --red-bg: #791F1F;   --red-text: #F7C1C1;
+        --amber-bg: #633806; --amber-text: #FAC775;
+        --purple-bg: #2D1B4E; --purple-text: #C4B5FD;
+      }
+    }
+    body { font-family: var(--sans); background: var(--bg); color: var(--text); padding: 2rem 1rem; }
+    .wrap { max-width: 1400px; margin: 0 auto; }
+
+    h1 { font-size: 28px; font-weight: 600; }
+    h2 { font-size: 20px; font-weight: 500; margin: 24px 0 16px; color: var(--text); }
+    h3 { font-size: 16px; font-weight: 500; margin: 16px 0 12px; }
+    .subtitle { font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+    
+    .base-url { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px;
+      background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius);
+      padding: 10px 16px; font-size: 13px; font-family: var(--mono); }
+    .base-url span { font-family: var(--sans); font-size: 12px; color: var(--muted); }
+
+    .tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); margin: 2rem 0 1.5rem; }
+    .tab { font-size: 14px; padding: 10px 20px; cursor: pointer; color: var(--muted);
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--hint);
+      text-transform: uppercase; margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border); }
+
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); 
+      margin-bottom: 16px; overflow: hidden; }
+    .card-header { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px; 
+      cursor: pointer; transition: background 0.2s; }
+    .card-header:hover { background: var(--bg2); }
+    .method { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 4px;
+      min-width: 64px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+    .method.POST   { background: var(--green-bg); color: var(--green-text); }
+    .method.GET    { background: var(--blue-bg);  color: var(--blue-text);  }
+    .method.DELETE { background: var(--red-bg);   color: var(--red-text);   }
+    .ep-path { font-family: var(--mono); font-size: 14px; font-weight: 500; }
+    .ep-path .param { color: var(--amber-text); }
+    .ep-desc { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .ep-status { font-size: 11px; color: var(--hint); margin-top: 4px; font-family: var(--mono); }
+    .chevron { font-size: 12px; color: var(--hint); margin-left: auto; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(180deg); }
+    .card-body { display: none; border-top: 1px solid var(--border); padding: 20px; background: var(--bg2); }
+    .card-body.open { display: block; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+    .block-label { font-size: 11px; font-weight: 600; color: var(--hint); letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 8px; }
+    pre { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 16px; font-size: 12px; line-height: 1.7; overflow-x: auto;
+      font-family: var(--mono); white-space: pre-wrap; word-break: break-word; }
+    .key { color: var(--blue-text); }
+    .str { color: var(--green-text); }
+    .num { color: var(--amber-text); }
+
+    .curl-wrap { position: relative; margin-top: 16px; }
+    .curl { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px 14px; font-size: 12px; font-family: var(--mono);
+      white-space: pre-wrap; overflow-x: auto; line-height: 1.6; }
+    .copy-btn { position: absolute; top: 8px; right: 8px; font-size: 11px; font-family: var(--sans);
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 4px;
+      padding: 4px 10px; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+    .copy-btn:hover { color: var(--text); background: var(--bg); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-weight: 600; font-size: 11px; color: var(--hint);
+      padding: 8px 8px 8px 0; letter-spacing: 0.06em; text-transform: uppercase; }
+    td { padding: 8px 8px 8px 0; border-top: 0.5px solid var(--border); vertical-align: top; }
+    td:first-child { font-family: var(--mono); font-size: 12px; color: var(--amber-text); 
+      white-space: nowrap; padding-right: 20px; }
+    td:last-child { color: var(--muted); font-size: 12px; }
+    .badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; margin-left: 8px; }
+    .badge.req { background: var(--red-bg); color: var(--red-text); }
+    .badge.opt { background: var(--blue-bg); color: var(--blue-text); }
+    .badge.info { background: var(--purple-bg); color: var(--purple-text); }
+
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+    .filter-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
+    .filter-name { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--amber-text); }
+    .filter-desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    .keyword-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .keyword { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px;
+      padding: 4px 12px; font-size: 12px; font-family: var(--mono); cursor: pointer; transition: all 0.2s; }
+    .keyword:hover { background: var(--blue-bg); color: var(--blue-text); }
+
+    .tester-row { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+    .t-method { font-size: 13px; font-family: var(--mono); padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg); color: var(--text); width: 100px; cursor: pointer; }
+    .t-url { flex: 1; font-size: 13px; font-family: var(--mono); padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg); color: var(--text); min-width: 200px; }
+    .t-send { font-size: 13px; padding: 8px 20px; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--blue-bg); color: var(--blue-text);
+      cursor: pointer; font-weight: 500; transition: all 0.2s; }
+    .t-send:hover { background: var(--blue-text); color: var(--blue-bg); }
+    .tester-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 680px) { .tester-grid { grid-template-columns: 1fr; } }
+    .t-textarea { width: 100%; font-size: 12px; font-family: var(--mono); padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg); color: var(--text); resize: vertical; min-height: 120px; line-height: 1.6; }
+    .response-box { background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px; min-height: 180px;
+      font-size: 12px; font-family: var(--mono); line-height: 1.6; color: var(--muted);
+      white-space: pre-wrap; word-break: break-all; overflow-y: auto; max-height: 400px; }
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px;
+      padding: 4px 12px; border-radius: 20px; font-weight: 500; margin-bottom: 12px; }
+    .s2xx { background: var(--green-bg); color: var(--green-text); }
+    .s4xx { background: var(--amber-bg); color: var(--amber-text); }
+    .s5xx { background: var(--red-bg);   color: var(--red-text);   }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+    .footer { margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid var(--border);
+      color: var(--hint); font-size: 12px; }
+    .footer a { color: var(--blue-text); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    .profiles-list { max-height: 400px; overflow-y: auto; margin-top: 16px; }
+    .profile-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+    .profile-item:hover { background: var(--bg); transform: translateX(4px); }
+    .profile-name { font-weight: 600; color: var(--text); }
+    .profile-details { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .profile-details span { margin-right: 12px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="margin-bottom: 2rem">
+    <h1>🔍 Stage 2 - Intelligence Query Engine</h1>
+    <p class="subtitle">Advanced filtering, sorting, pagination, and natural language search for demographic profile data.</p>
+    <div class="base-url"><span>Base URL</span> <span id="baseUrlDisplay">Loading...</span>/api</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('docs')">📚 Documentation</div>
+    <div class="tab" onclick="switchTab('tester')">🧪 API Tester</div>
+    <div class="tab" onclick="switchTab('browser')">📊 Browse Profiles</div>
+  </div>
+
+  <!-- ==================== DOCS TAB ==================== -->
+  <div class="tab-content active" id="tab-docs">
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <span class="method GET">GET</span>
+        <div>
+          <div class="ep-path">/api/profiles/</div>
+          <div class="ep-desc">Get all profiles with filtering, sorting, and pagination</div>
+          <div class="ep-status">200 OK · 400 · 422</div>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="section-label">Query Parameters</div>
+        <div class="filter-grid">
+          <div class="filter-card"><div class="filter-name">gender</div><div class="filter-desc">male | female</div></div>
+          <div class="filter-card"><div class="filter-name">age_group</div><div class="filter-desc">child | teenager | adult | senior</div></div>
+          <div class="filter-card"><div class="filter-name">country_id</div><div class="filter-desc">ISO code (NG, KE, ZA, etc.)</div></div>
+          <div class="filter-card"><div class="filter-name">min_age</div><div class="filter-desc">Minimum age (integer)</div></div>
+          <div class="filter-card"><div class="filter-name">max_age</div><div class="filter-desc">Maximum age (integer)</div></div>
+          <div class="filter-card"><div class="filter-name">min_gender_probability</div><div class="filter-desc">Minimum gender confidence (0-1)</div></div>
+          <div class="filter-card"><div class="filter-name">min_country_probability</div><div class="filter-desc">Minimum country confidence (0-1)</div></div>
+          <div class="filter-card"><div class="filter-name">sort_by</div><div class="filter-desc">age | created_at | gender_probability</div></div>
+          <div class="filter-card"><div class="filter-name">order</div><div class="filter-desc">asc | desc (default: asc)</div></div>
+          <div class="filter-card"><div class="filter-name">page</div><div class="filter-desc">Page number (default: 1)</div></div>
+          <div class="filter-card"><div class="filter-name">limit</div><div class="filter-desc">Items per page (default: 10, max: 50)</div></div>
+        </div>
+
+        <div class="section-label">Examples</div>
+        <div class="curl-wrap">
+          <div class="curl" id="c1">curl "https://your-app.railway.app/api/profiles/?gender=male&country_id=NG"</div>
+          <button class="copy-btn" onclick="copyText('c1',this)">Copy</button>
+        </div>
+        <div class="curl-wrap">
+          <div class="curl" id="c2">curl "https://your-app.railway.app/api/profiles/?min_age=25&max_age=40&sort_by=age&order=desc&page=1&limit=20"</div>
+          <button class="copy-btn" onclick="copyText('c2',this)">Copy</button>
+        </div>
+
+        <div class="section-label">Response (200 OK)</div>
+        <pre>{
+  <span class="key">"status"</span>: <span class="str">"success"</span>,
+  <span class="key">"page"</span>: <span class="num">1</span>,
+  <span class="key">"limit"</span>: <span class="num">10</span>,
+  <span class="key">"total"</span>: <span class="num">2026</span>,
+  <span class="key">"data"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"b3f9c1e2-7d4a-4c91-9c2a-1f0a8e5b6d12"</span>,
+      <span class="key">"name"</span>: <span class="str">"emmanuel"</span>,
+      <span class="key">"gender"</span>: <span class="str">"male"</span>,
+      <span class="key">"age"</span>: <span class="num">34</span>,
+      <span class="key">"age_group"</span>: <span class="str">"adult"</span>,
+      <span class="key">"country_id"</span>: <span class="str">"NG"</span>,
+      <span class="key">"country_name"</span>: <span class="str">"Nigeria"</span>
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <span class="method GET">GET</span>
+        <div>
+          <div class="ep-path">/api/profiles/search/</div>
+          <div class="ep-desc">Natural language search - converts plain English into filters</div>
+          <div class="ep-status">200 OK · 400 (unable to interpret) · 422</div>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="section-label">Query Parameters</div>
+        <table>
+          <tr><th>Parameter</th><th>Description</th></tr>
+          <tr><td>q</td><td>Natural language query (required)</td></tr>
+          <tr><td>page</td><td>Page number (default: 1)</td></tr>
+          <tr><td>limit</td><td>Items per page (default: 10, max: 50)</td></tr>
+        </table>
+
+        <div class="section-label">Examples</div>
+        <div class="curl-wrap">
+          <div class="curl" id="c3">curl "https://your-app.railway.app/api/profiles/search/?q=young%20males%20from%20nigeria"</div>
+          <button class="copy-btn" onclick="copyText('c3',this)">Copy</button>
+        </div>
+        <div class="curl-wrap">
+          <div class="curl" id="c4">curl "https://your-app.railway.app/api/profiles/search/?q=females%20above%2030"</div>
+          <button class="copy-btn" onclick="copyText('c4',this)">Copy</button>
+        </div>
+        <div class="curl-wrap">
+          <div class="curl" id="c5">curl "https://your-app.railway.app/api/profiles/search/?q=adult%20males%20from%20kenya"</div>
+          <button class="copy-btn" onclick="copyText('c5',this)">Copy</button>
+        </div>
+
+        <div class="section-label">Response (200 OK)</div>
+        <pre>{
+  <span class="key">"status"</span>: <span class="str">"success"</span>,
+  <span class="key">"query"</span>: <span class="str">"young males from nigeria"</span>,
+  <span class="key">"interpreted_as"</span>: {
+    <span class="key">"gender"</span>: <span class="str">"male"</span>,
+    <span class="key">"min_age"</span>: <span class="num">16</span>,
+    <span class="key">"max_age"</span>: <span class="num">24</span>,
+    <span class="key">"country_id"</span>: <span class="str">"NG"</span>
+  },
+  <span class="key">"page"</span>: <span class="num">1</span>,
+  <span class="key">"limit"</span>: <span class="num">10</span>,
+  <span class="key">"total"</span>: <span class="num">42</span>,
+  <span class="key">"data"</span>: [...]
+}</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <span class="method GET">GET</span>
+        <div>
+          <div class="ep-path">/api/profiles/<span class="param">{id}</span>/</div>
+          <div class="ep-desc">Get a single profile by UUID</div>
+          <div class="ep-status">200 OK · 404 Not Found</div>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="curl-wrap">
+          <div class="curl" id="c6">curl "https://your-app.railway.app/api/profiles/550e8400-e29b-41d4-a716-446655440000/"</div>
+          <button class="copy-btn" onclick="copyText('c6',this)">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggle(this)">
+        <span class="method DELETE">DELETE</span>
+        <div>
+          <div class="ep-path">/api/profiles/<span class="param">{id}</span>/</div>
+          <div class="ep-desc">Delete a profile by UUID</div>
+          <div class="ep-status">204 No Content · 404 Not Found</div>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="curl-wrap">
+          <div class="curl" id="c7">curl -X DELETE "https://your-app.railway.app/api/profiles/550e8400-e29b-41d4-a716-446655440000/"</div>
+          <button class="copy-btn" onclick="copyText('c7',this)">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin: 32px 0">
+      <div class="section-label">Natural Language Parsing</div>
+      
+      <h3>Supported Keywords</h3>
+      <div><strong>Gender:</strong> 
+        <span class="keyword">male</span> <span class="keyword">males</span> <span class="keyword">man</span> <span class="keyword">men</span>
+        <span class="keyword">boy</span> <span class="keyword">boys</span>
+        <span class="keyword">female</span> <span class="keyword">females</span> <span class="keyword">woman</span> <span class="keyword">women</span>
+        <span class="keyword">girl</span> <span class="keyword">girls</span>
+      </div>
+      
+      <div style="margin-top: 12px;"><strong>Age Group:</strong>
+        <span class="keyword">child</span> <span class="keyword">children</span> <span class="keyword">kid</span> <span class="keyword">kids</span>
+        <span class="keyword">teenager</span> <span class="keyword">teenagers</span> <span class="keyword">teen</span> <span class="keyword">teens</span>
+        <span class="keyword">adult</span> <span class="keyword">adults</span>
+        <span class="keyword">senior</span> <span class="keyword">seniors</span> <span class="keyword">elderly</span> <span class="keyword">old</span>
+      </div>
+      
+      <div style="margin-top: 12px;"><strong>Age Ranges (Descriptive):</strong>
+        <span class="keyword">young</span> → 16-24
+        <span class="keyword">youth</span> → 15-25
+        <span class="keyword">middle aged</span> → 40-60
+      </div>
+      
+      <div style="margin-top: 12px;"><strong>Numeric Patterns:</strong>
+        <span class="keyword">above X</span> / <span class="keyword">over X</span> → min_age=X
+        <span class="keyword">below X</span> / <span class="keyword">under X</span> → max_age=X
+        <span class="keyword">between X and Y</span> → min_age=X, max_age=Y
+        <span class="keyword">age X</span> / <span class="keyword">aged X</span> → exact age X
+      </div>
+    </div>
+
+    <div style="margin: 32px 0">
+      <div class="section-label">Error Responses</div>
+      <div class="filter-grid">
+        <div class="filter-card"><div class="filter-name">400</div><div class="filter-desc">Missing or empty query parameter</div></div>
+        <div class="filter-card"><div class="filter-name">400</div><div class="filter-desc">Unable to interpret query (search endpoint)</div></div>
+        <div class="filter-card"><div class="filter-name">404</div><div class="filter-desc">Profile not found</div></div>
+        <div class="filter-card"><div class="filter-name">422</div><div class="filter-desc">Invalid parameter type or value</div></div>
+      </div>
+    </div>
+
+    <div style="margin: 32px 0">
+      <div class="section-label">Age Group Classification</div>
+      <div class="filter-grid">
+        <div class="filter-card"><div class="filter-name">0–12</div><div class="filter-desc">child</div></div>
+        <div class="filter-card"><div class="filter-name">13–19</div><div class="filter-desc">teenager</div></div>
+        <div class="filter-card"><div class="filter-name">20–59</div><div class="filter-desc">adult</div></div>
+        <div class="filter-card"><div class="filter-name">60+</div><div class="filter-desc">senior</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TESTER TAB ==================== -->
+  <div class="tab-content" id="tab-tester">
+
+    <div style="margin-bottom: 20px">
+      <div class="section-label">Quick Fill Examples</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <span class="keyword" onclick="fillExample('GET','/api/profiles/?limit=10','')">📋 All Profiles</span>
+        <span class="keyword" onclick="fillExample('GET','/api/profiles/?gender=male&country_id=NG&limit=10','')">👨 Nigerian Males</span>
+        <span class="keyword" onclick="fillExample('GET','/api/profiles/?min_age=25&max_age=40&sort_by=age&order=desc&limit=10','')">📊 Age 25-40 (Desc)</span>
+        <span class="keyword" onclick="fillExample('GET','/api/profiles/search/?q=young%20males%20from%20nigeria&limit=10','')">🔍 Search: "young males from nigeria"</span>
+        <span class="keyword" onclick="fillExample('GET','/api/profiles/search/?q=females%20above%2030&limit=10','')">🔍 Search: "females above 30"</span>
+        <span class="keyword" onclick="fillExample('GET','/api/profiles/search/?q=adult%20males%20from%20kenya&limit=10','')">🔍 Search: "adult males from kenya"</span>
+      </div>
+    </div>
+
+    <div class="tester-row">
+      <select class="t-method" id="t-method">
+        <option value="GET">GET</option>
+        <option value="DELETE">DELETE</option>
+      </select>
+      <input class="t-url" id="t-url" value="/api/profiles/?limit=10" placeholder="/api/profiles/"/>
+      <button class="t-send" id="t-send-btn" onclick="sendRequest()">🚀 Send Request</button>
+    </div>
+
+    <div class="tester-grid">
+      <div>
+        <div class="block-label">Request URL</div>
+        <div class="response-box" id="t-url-display" style="font-family: var(--mono); font-size: 11px; word-break: break-all;"></div>
+      </div>
+      <div>
+        <div class="block-label">Response</div>
+        <div id="t-status-wrap" style="display: none;">
+          <span class="status-pill" id="t-status-pill">
+            <span class="dot"></span>
+            <span id="t-status-text"></span>
+          </span>
+        </div>
+        <div class="response-box" id="t-response">Response will appear here...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BROWSE TAB ==================== -->
+  <div class="tab-content" id="tab-browser">
+    <div class="section-label">Filter Profiles</div>
+    <div class="filter-grid" style="margin-bottom: 20px;">
+      <div class="filter-card">
+        <div class="filter-name">Gender</div>
+        <select id="browseGender" style="width: 100%; padding: 4px; margin-top: 8px;">
+          <option value="">All</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="filter-card">
+        <div class="filter-name">Age Group</div>
+        <select id="browseAgeGroup" style="width: 100%; padding: 4px; margin-top: 8px;">
+          <option value="">All</option>
+          <option value="child">Child</option>
+          <option value="teenager">Teenager</option>
+          <option value="adult">Adult</option>
+          <option value="senior">Senior</option>
+        </select>
+      </div>
+      <div class="filter-card">
+        <div class="filter-name">Country</div>
+        <input type="text" id="browseCountry" placeholder="Country code (NG, KE, etc.)" style="width: 100%; padding: 4px; margin-top: 8px;">
+      </div>
+      <div class="filter-card">
+        <div class="filter-name">Sort By</div>
+        <select id="browseSortBy" style="width: 100%; padding: 4px; margin-top: 8px;">
+          <option value="-created_at">Newest First</option>
+          <option value="age">Age (Ascending)</option>
+          <option value="-age">Age (Descending)</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="loadProfiles()" style="padding: 8px 16px; background: var(--blue-bg); color: var(--blue-text); border: none; border-radius: var(--radius); cursor: pointer; margin-bottom: 20px;">🔍 Load Profiles</button>
+    <div id="profilesList" class="profiles-list">
+      <p class="loading">Click "Load Profiles" to view data...</p>
+    </div>
+    <div id="paginationControls" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;"></div>
+  </div>
+
+  <div class="footer">
+    <p>Stage 2 - Intelligence Query Engine | Built with Django REST Framework</p>
+    <p>📚 <a href="https://github.com/FavieCodes/hng-stage2-backend" target="_blank">GitHub Repository</a></p>
+  </div>
+</div>
+
+<script>
+  let currentPage = 1;
+  let totalPages = 1;
+
+  function getBaseUrl() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:8000';
+    }
+    return window.location.origin;
+  }
+
+  const BASE_URL = getBaseUrl();
+  document.getElementById('baseUrlDisplay').textContent = BASE_URL;
+
+  function switchTab(name) {
+    const tabs = ['docs', 'tester', 'browser'];
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', tabs[i] === name);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const chevron = header.querySelector('.chevron');
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+  }
+
+  function copyText(elementId, btn) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalText = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => btn.textContent = originalText, 1500);
+    });
+  }
+
+  function fillExample(method, url, body) {
+    document.getElementById('t-method').value = method;
+    document.getElementById('t-url').value = url;
+    document.getElementById('t-status-wrap').style.display = 'none';
+    const responseBox = document.getElementById('t-response');
+    responseBox.textContent = 'Response will appear here...';
+    responseBox.style.color = '';
+    switchTab('tester');
+  }
+
+  async function sendRequest() {
+    const method = document.getElementById('t-method').value;
+    let url = document.getElementById('t-url').value.trim();
+    const responseBox = document.getElementById('t-response');
+    const statusWrap = document.getElementById('t-status-wrap');
+    const statusPill = document.getElementById('t-status-pill');
+    const statusText = document.getElementById('t-status-text');
+    const urlDisplay = document.getElementById('t-url-display');
+
+    if (!url.startsWith('http')) {
+      url = BASE_URL + url;
+    }
+
+    urlDisplay.textContent = url;
+
+    responseBox.textContent = '⏳ Loading...';
+    statusWrap.style.display = 'none';
+
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+
+    try {
+      const res = await fetch(url, opts);
+      const code = res.status;
+      statusWrap.style.display = 'block';
+      statusPill.className = 'status-pill ' + (code < 300 ? 's2xx' : code < 500 ? 's4xx' : 's5xx');
+      statusText.textContent = code + ' ' + (res.statusText || (code === 204 ? 'No Content' : ''));
+
+      if (code === 204) {
+        responseBox.textContent = '(204 No Content — profile deleted successfully)';
+      } else {
+        const data = await res.json();
+        responseBox.textContent = JSON.stringify(data, null, 2);
+      }
+    } catch(e) {
+      responseBox.textContent = 'Request failed: ' + e.message;
+    }
+  }
+
+  async function loadProfiles(page = 1) {
+    const gender = document.getElementById('browseGender').value;
+    const ageGroup = document.getElementById('browseAgeGroup').value;
+    const country = document.getElementById('browseCountry').value;
+    const sortBy = document.getElementById('browseSortBy').value;
+    const limit = 20;
+
+    let url = `${BASE_URL}/api/profiles/?page=${page}&limit=${limit}`;
+    if (gender) url += `&gender=${gender}`;
+    if (ageGroup) url += `&age_group=${ageGroup}`;
+    if (country) url += `&country_id=${country.toUpperCase()}`;
+    if (sortBy) url += `&sort_by=${sortBy.replace('-', '')}&order=${sortBy.startsWith('-') ? 'desc' : 'asc'}`;
+
+    const container = document.getElementById('profilesList');
+    container.innerHTML = '<p>⏳ Loading profiles...</p>';
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === 'success' && data.data && data.data.length > 0) {
+        let html = '';
+        data.data.forEach(profile => {
+          html += `
+            <div class="profile-item" onclick="viewProfile('${profile.id}')">
+              <div class="profile-name">${escapeHtml(profile.name)}</div>
+              <div class="profile-details">
+                <span>🚻 ${profile.gender}</span>
+                <span>🎂 ${profile.age} (${profile.age_group})</span>
+                <span>🌍 ${profile.country_id} - ${escapeHtml(profile.country_name || profile.country_id)}</span>
+                <span>🆔 ${profile.id.substring(0, 8)}...</span>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+        
+        totalPages = Math.ceil(data.total / limit);
+        currentPage = page;
+        updatePaginationControls();
+      } else {
+        container.innerHTML = '<p>No profiles found. Try different filters or seed the database first.</p>';
+      }
+    } catch (e) {
+      container.innerHTML = '<p>Error loading profiles. Make sure the server is running.</p>';
+    }
+  }
+
+  function updatePaginationControls() {
+    const controls = document.getElementById('paginationControls');
+    let html = '';
+    
+    if (currentPage > 1) {
+      html += `<button onclick="loadProfiles(${currentPage - 1})" style="padding: 5px 10px; cursor: pointer;">◀ Previous</button>`;
+    }
+    
+    html += `<span style="padding: 5px 10px;">Page ${currentPage} of ${totalPages}</span>`;
+    
+    if (currentPage < totalPages) {
+      html += `<button onclick="loadProfiles(${currentPage + 1})" style="padding: 5px 10px; cursor: pointer;">Next ▶</button>`;
+    }
+    
+    controls.innerHTML = html;
+  }
+
+  async function viewProfile(profileId) {
+    const url = `${BASE_URL}/api/profiles/${profileId}/`;
+    const responseBox = document.getElementById('t-response');
+    const statusWrap = document.getElementById('t-status-wrap');
+    const statusPill = document.getElementById('t-status-pill');
+    const statusText = document.getElementById('t-status-text');
+    const urlDisplay = document.getElementById('t-url-display');
+
+    urlDisplay.textContent = url;
+    responseBox.textContent = '⏳ Loading...';
+    statusWrap.style.display = 'none';
+
+    try {
+      const response = await fetch(url);
+      const code = response.status;
+      statusWrap.style.display = 'block';
+      statusPill.className = 'status-pill ' + (code < 300 ? 's2xx' : 's4xx');
+      statusText.textContent = code + ' ' + response.statusText;
+
+      const data = await response.json();
+      responseBox.textContent = JSON.stringify(data, null, 2);
+      
+      document.getElementById('t-method').value = 'GET';
+      document.getElementById('t-url').value = `/api/profiles/${profileId}/`;
+      switchTab('tester');
+    } catch(e) {
+      responseBox.textContent = 'Error loading profile: ' + e.message;
+    }
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>
