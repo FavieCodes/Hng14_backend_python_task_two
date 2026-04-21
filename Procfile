@@ -1,1 +1,1 @@
-web: gunicorn profiles_api.wsgi:application
+web: gunicorn IntelligenceQueryEngine.wsgi:application
