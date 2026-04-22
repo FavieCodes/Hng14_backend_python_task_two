@@ -40,6 +40,8 @@ profiles table
 ├── country_probability     FLOAT
 └── created_at              TIMESTAMP (auto-generated)
 
+```
+
 ## 📡 API Endpoints
 1. Get All Profiles (Advanced Query)
 ```
@@ -60,8 +62,8 @@ order	string	Sort direction	asc, desc
 page	integer	Page number (default: 1)	2
 limit	integer	Items per page (default: 10, max: 50)	20
 Example Request
-```
-bash
+
+```bash
 curl "https://your-app.railway.app/api/profiles/?gender=male&country_id=NG&min_age=25&max_age=40&sort_by=age&order=desc&page=1&limit=10"
 Success Response (200 OK)
 ```
@@ -106,7 +108,8 @@ curl "https://your-app.railway.app/api/profiles/search/?q=females%20above%2030"
 # Search for adult males from Kenya
 curl "https://your-app.railway.app/api/profiles/search/?q=adult%20males%20from%20kenya"
 Success Response (200 OK)
-json
+
+```json
 {
   "status": "success",
   "query": "young males from nigeria",
@@ -121,6 +124,7 @@ json
   "total": 42,
   "data": [...]
 }
+```
 3. Get Single Profile
 GET /api/profiles/{id}/
 
@@ -130,7 +134,7 @@ Example Request
 bash
 curl "https://your-app.railway.app/api/profiles/550e8400-e29b-41d4-a716-446655440000/"
 Success Response (200 OK)
-json
+```json
 {
   "status": "success",
   "data": {
@@ -147,13 +151,14 @@ json
     "created_at": "2026-04-01T12:00:00Z"
   }
 }
+```
 4. Delete Profile
 DELETE /api/profiles/{id}/
 
 Permanently removes a profile from the database.
 
 Example Request
-bash
+```bash
 curl -X DELETE "https://your-app.railway.app/api/profiles/550e8400-e29b-41d4-a716-446655440000/"
 Response: 204 No Content
 ```
